@@ -1,0 +1,194 @@
+12:22 7-6-2019
+
+Datacamp - Introduction to Relational Databases.
+
+- Working with Data Types:
+ - Enforced on columns (i.e authorities)
+ - Define so-called "domain" of a column
+ - Define what operations are possible
+ - Enforce consistent storage of values
+
+The most common types:
+
+text : character strings of any length
+varchar [(x)]: a maximum no/. of n character
+char[(x)]: a fixed-length string of n characters
+boolean : can only take three states : True, False and NULL
+date, time and timestamp : various formats for date and time calculations
+numeric : arbitary precision numbers e.g. 3.1457
+integer: whole number of range -2147483648 and +2147483647
+
+e.g.
+-- CREATE
+
+CREATE TABLE student (
+ssn integer,
+name varchar(64),
+dob date,
+average_grade numeric(3,2),
+tuition_paid boolean
+);
+
+-- ALTER
+
+ALTER TABLE students
+ALTER COLUMN name
+TYPE varchar(128);
+
+-- ALTER (with USING key word) - Helps to truncate the or roundoff
+
+ALTER TABLE students --alter students table
+ALTER COLUMN average_grade --column to alter
+TYPE integer 
+-- Turns 5.54 into 6, not 5, before type conversion
+USING ROUND(average_grade); -- rounding 
+
+
+The not-null connstraint
+
+ - Disallow NULL values in a certain column
+ - must hold true for current state
+ - must hold true for future state
+
+NULL mean?
+
+value is unknown 
+doesn't exist 
+
+CREATE TABLE students(
+ ssn integer not null, (cannot be null)
+ lastname varchar(64) not null, (cannot be null, since name exists)
+ home_phone integer,
+ office_phone integer
+);
+
+to add not null contraint
+alter column
+
+The unique constraint
+---------------------
+
+ - Disallow duplicate values in a column
+ - must hold true for now and future
+
+CREATE TABLE table_name(
+ column_name UNIQUE
+);
+
+Adding an unique constraint to existing columns
+
+ALTER TABLE table_name
+ADD CONSTRAINT some_name UNIQUE(column_name);
+
+15:36 7-6-2019
+-----------------
+
+keys and super keys
+--------------------------------------
+
+known-knownledge:
+
+keys are used for normalization, unique data
+keys make your database unique, based on key contraints
+
+- Attribute(s) that identify a record uniquely
+- As long as attributes can be removed: superkey
+- If no more attributes can be removed: minimal superkey or key
+
+     license_no     | serial_no |    make    |  model  | year
+--------------------+-----------+------------+---------+------
+ Texas ABC-739      | A69352    | Ford       | Mustang |    2
+ Florida TVP-347    | B43696    | Oldsmobile | Cutlass |    5
+ New York MPO-22    | X83554    | Oldsmobile | Delta   |    1
+ California 432-TFY | C43742    | Mercedes   | 190-D   |   99
+ California RSK-629 | Y82935    | Toyota     | Camry   |    4
+ Texas RSK-629      | U028365   | Jaguar     | XJS     |    4
+
+SK1 = {license_no, serial_no, make, model, year}
+SK2 = {license_no, serial_no, make, model}
+SK3 = {make, model, year}, SK4 = {license_no, serial_no}, SKi, ..., SKn
+
+Super Keys:
+K1 = {license_no}; K2 = {serial_no}; K3 = {model}; K4 = {make, year}
+
+K1 to 3 only consist of one attribute
+Removing either "make" or "year" from K4 would result in duplicates
+Only one candidate key can be the chosen key
+
+Primary Keys
+------------
+one primary key in database
+
+Primary key is a father key
+ - Table01 
+	col1, col2, col3
+	primary key is col1,
+ - Table02
+	col1, col4, col5
+	primary key is col1
+
+Table01 and Table02 are combined using primary key
+example
+
+CREATE TABLE products (
+    product_no integer UNIQUE NOT NULL,
+    name text,
+    price numeric
+);
+
+CREATE TABLE products (
+    product_no integer PRIMARY KEY,
+    name text,
+    price numeric
+);
+
+CREATE TABLE example (
+    a integer,
+    b integer,
+    c integer,
+    PRIMARY KEY (a, c) more than one key
+);
+
+add constraint with ALTER-CONSTRAINT
+ALTER TABLE table_name
+ADD CONSTRAINT some_name PRIMARY KEY (column_name)
+
+
+Surrogate Keys:
+-----------------
+
+Sake of having primiary key
+aritifical surrogate key
+- Primary keys should be built from as few columns as possible.
+- Primary keys should never change over time.
+
+     license_no     | serial_no |    make    |  model  | color
+--------------------+-----------+------------+---------+------
+ Texas ABC-739      | A69352    | Ford       | Mustang | blue
+ Florida TVP-347    | B43696    | Oldsmobile | Cutlass | black
+ New York MPO-22    | X83554    | Oldsmobile | Delta   | silver
+ California 432-TFY | C43742    | Mercedes   | 190-D   | champagne
+ California RSK-629 | Y82935    | Toyota     | Camry   | red
+ Texas RSK-629      | U028365   | Jaguar     | XJS     | blue
+
+
+adding surrogate key
+ALTER TABLE cars
+ADD COLUMN id serial PRIMARY KEY; serial type, all will be increased with sequentially 
+
+INSERT INTO cars
+VALUES ('Opel', 'Astra', 'green', 1);
+
+duplicate key value violates unique constraint "id_pkey"
+DETAIL:  Key (id)=(1) already exists.
+
+"id" uniquely identifies records in the table – useful for referencing!
+
+ALTER TABLE table_name
+ADD COLUMN column_c varchar(256);
+
+UPDATE table_name
+SET column_c = CONCAT(column_a, column_b);
+
+ALTER TABLE table_name
+ADD CONSTRAINT pk PRIMARY KEY (column_c);
