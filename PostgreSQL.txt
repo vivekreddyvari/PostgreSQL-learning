@@ -1,3 +1,38 @@
+SQL Contraints
+
+Types:
+
+Attribute Contraints
+ - Data type on columns
+Key Contraints
+ - primary Keys
+Referential Integrity Contraints
+ - enforced through foreign-keys
+ 
+
+Constraints - give good data structure
+ data quality
+ data quality business advantage
+ 
+ https://www.postgresql.org/docs/10/datatype.html
+ - Data types
+
+Type Casting:
+
+dealing with data types:
+ -  CREATE TABLE WEATHER (
+ 	temperature integer,
+ 	wind_speed text);
+ -  SELECT temperature * wind_speed AS wind_chill
+    FROM weather
+
+mutliplication of character with integer leads to an error 
+
+SELECT temperature * CAST(wind_speed AS integer) AS wind_chill 
+FROM weather.
+
+- CAST - key word allows to turn Column-Variable to Integer on fly.
+
 12:22 7-6-2019
 
 Datacamp - Introduction to Relational Databases.
@@ -182,7 +217,7 @@ VALUES ('Opel', 'Astra', 'green', 1);
 duplicate key value violates unique constraint "id_pkey"
 DETAIL:  Key (id)=(1) already exists.
 
-"id" uniquely identifies records in the table – useful for referencing!
+"id" uniquely identifies records in the table â€“ useful for referencing!
 
 ALTER TABLE table_name
 ADD COLUMN column_c varchar(256);
@@ -192,3 +227,80 @@ SET column_c = CONCAT(column_a, column_b);
 
 ALTER TABLE table_name
 ADD CONSTRAINT pk PRIMARY KEY (column_c);
+
+
+Foreign Key and Primary Key concepts
+----------------------------------------
+
+CREATE TABLE manufacturers (
+ name varchar(255) PRIMARY KEY
+);
+
+INSERT INTO manufacturers 
+VALUES ('Ford'), ('VW'), ('GM');
+
+CREATE TABLE cars (
+ model varchar(255) PRIMARY KEY,
+ manufacturer_name integer REFERENCES manufacturers (name)
+);
+
+INSERT INTO cars 
+VALUES ('Ranger', 'Ford'), ('Beetle', 'VW');
+
+ALTER TABLE a 
+ADD CONSTRAINT a_fkey FOREIGN KEY (b_id) REFERENCES b (id);
+
+How to implement N:M-relationships
+Create a table
+Add foreign keys for every connected table
+Add additional attributes
+
+CREATE TABLE affiliations (
+ professor_id integer REFERENCES professors (id),
+ organization_id varchar(256) REFERENCES organization (id),
+ function varchar(256)
+);
+
+no primary key defined 
+
+Referential Integrity
+---------------------
+
+A record referencing another table must refer to an existing record in that table
+Specified between two tables
+Enforced through foreign keys
+
+Referential integrity violations
+Referential integrity from table A to table B is violated...
+
+...if a record in table B that is referenced from a record in table A is deleted.
+...if a record in table A referencing a non-existing record from table B is inserted.
+Foreign keys prevent violations!
+
+CREATE TABLE a (
+ id integer PRIMARY KEY,
+ column_a varchar(64), 
+ ...,
+ b_id integer REFERENCES b (id) ON DELETE NO ACTION
+);
+
+CREATE TABLE a (
+ id integer PRIMARY KEY,
+ column_a varchar(64), 
+ ...,
+ b_id integer REFERENCES b (id) ON DELETE CASCADE
+);
+
+CASCADE :will allow deletion on table-b and then all records on table-a
+
+
+ON DELETE...
+
+...NO ACTION: Throw an error
+...CASCADE: Delete all referencing records
+...RESTRICT: Throw an error
+...SET NULL: Set the referencing column to NULL
+...SET DEFAULT: Set the referencing column to its default value
+
+
+
